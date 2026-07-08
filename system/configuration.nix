@@ -9,6 +9,7 @@
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   programs.niri.enable = true;
+  programs.zsh.enable = true;
 
   fonts.packages = with pkgs; [
     fira-code
@@ -65,6 +66,7 @@
     isNormalUser = true;
     description = "Shreas";
     extraGroups = [ "networkmanager" "wheel" ];
+    shell = pkgs.zsh;
   };
 
   programs.firefox.enable = true;

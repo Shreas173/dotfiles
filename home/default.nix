@@ -74,6 +74,9 @@ in
 
     inputs.helium.packages.${pkgs.system}.default
 
+    starship
+    zsh
+
     rcp
     wallpaper-script
   ];
@@ -84,7 +87,14 @@ in
     QML_IMPORT_PATH = "${pkgs.qt6.qt5compat}/lib/qt-6/qml";
   };
 
-  programs.bash = {
+  programs.zsh = {
+    enable = true;
+    enableCompletion = true;
+    autosuggestion.enable = true;
+    syntaxHighlighting.enable = true;
+  };
+
+  programs.starship = {
     enable = true;
   };
 
@@ -119,6 +129,12 @@ in
     "quickshell/bar/blocks/Workspace.qml".source = ./dotfiles/quickshell/bar/blocks/Workspace.qml;
     "quickshell/bar/blocks/Workspaces.qml".source = ./dotfiles/quickshell/bar/blocks/Workspaces.qml;
     "quickshell/bar/utils/HyprlandUtils.qml".source = ./dotfiles/quickshell/bar/utils/HyprlandUtils.qml;
+
+    "ghostty/config.ghostty" = { source = ./dotfiles/ghostty/config.ghostty; force = true; };
+
+    "fastfetch/config.jsonc" = { source = ./dotfiles/fastfetch/config.jsonc; force = true; };
+
+    "starship.toml" = { source = ./dotfiles/starship.toml; force = true; };
 
     "kitty/kitty.conf" = { source = ./dotfiles/kitty/kitty.conf; force = true; };
     "kitty/quick-access-terminal.conf" = { source = ./dotfiles/kitty/quick-access-terminal.conf; force = true; };
