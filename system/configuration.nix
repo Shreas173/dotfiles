@@ -18,6 +18,15 @@
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
 
+  boot.loader.timeout = 10;
+  boot.loader.systemd-boot.configurationLimit = 20;
+
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 30d";
+  };
+
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   time.timeZone = "Asia/Dhaka";
@@ -67,6 +76,7 @@
     git
     wget
     neovim
+    opencode
   ];
 
   system.stateVersion = "26.05";
