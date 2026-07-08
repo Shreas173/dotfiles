@@ -56,6 +56,7 @@ in
     ntfs3g
     alacritty
     gh
+    yazi
     ripgrep
     lua51Packages.tree-sitter-cli
 
