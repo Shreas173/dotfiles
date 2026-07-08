@@ -21,7 +21,7 @@ let
     echo "Compilation successful! Run with: ./$executable"
   '';
 
-  wallpaperScript = pkgs.writeShellScriptBin "random-wallpaper" (builtins.readFile ./scripts/random-wallpaper);
+  wallpaperScript = pkgs.writeShellScriptBin "random-wallpaper" (builtins.readFile ./../scripts/random-wallpaper);
 in
 {
   home.username = "shreas";
@@ -40,8 +40,8 @@ in
     discord
     texliveFull
     zathura
-    zathura_pdf_poppler
-    kdenlive
+    zathuraPkgs.zathura_pdf_poppler
+    kdePackages.kdenlive
     bat
     ntfs3g
     alacritty
@@ -71,9 +71,9 @@ in
     "niri/config.kdl".source = ./dotfiles/niri/config.kdl;
     "fuzzel/fuzzel.ini".source = ./dotfiles/fuzzel/fuzzel.ini;
     "fuzzel/catppuccin-mocha-blue.ini".source = ./dotfiles/fuzzel/catppuccin-mocha-blue.ini;
-    "wallust/wallust.toml".source = ./dotfiles/wallust/wallust.toml;
-    "wallust/templates/niri.kdl".source = ./dotfiles/wallust/templates/niri.kdl;
-    "wallust/templates/qs-theme.qml".source = ./dotfiles/wallust/templates/qs-theme.qml;
+    "wallust/wallust.toml".source = ./wallust-config/wallust.toml;
+    "wallust/templates/niri.kdl".source = ./wallust-config/templates/niri.kdl;
+    "wallust/templates/qs-theme.qml".source = ./wallust-config/templates/qs-theme.qml;
 
     "quickshell/shell.qml".source = ./dotfiles/quickshell/shell.qml;
     "quickshell/Theme.qml".source = ./dotfiles/quickshell/Theme.qml;
