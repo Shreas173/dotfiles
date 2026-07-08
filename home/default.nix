@@ -1,0 +1,125 @@
+{ config, pkgs, inputs, ... }:
+
+let
+  rcp = pkgs.writeShellScriptBin "rcp" ''
+    set -euo pipefail
+    if [ $# -ne 1 ]; then
+      echo "Usage: rcp <file.cpp>"
+      exit 1
+    fi
+    file="$1"
+    if [ ! -f "$file" ]; then
+      echo "Error: File '$file' not found."
+      exit 1
+    fi
+    executable="''${file%.cpp}"
+    if [ "$executable" = "$file" ]; then
+      echo "Warning: Input file does not have .cpp extension, using full name as executable."
+    fi
+    echo "Compiling $file → $executable"
+    g++ -std=c++17 -Wshadow -Wall -o "$executable" "$file" -g -fsanitize=address -fsanitize=undefined -D_GLIBCXX_DEBUG
+    echo "Compilation successful! Run with: ./$executable"
+  '';
+
+  wallpaperScript = pkgs.writeShellScriptBin "random-wallpaper" (builtins.readFile ./scripts/random-wallpaper);
+in
+{
+  home.username = "shreas";
+  home.homeDirectory = "/home/shreas";
+  home.stateVersion = "26.05";
+
+  home.packages = with pkgs; [
+    neovim
+    fastfetch
+    geany
+    obs-studio
+    papirus-icon-theme
+    kitty
+    guake
+    ghostty
+    discord
+    texliveFull
+    zathura
+    zathura_pdf_poppler
+    kdenlive
+    bat
+    ntfs3g
+    alacritty
+    ripgrep
+    lua51Packages.tree-sitter-cli
+
+    quickshell
+    qt6.qt5compat
+    fuzzel
+
+    wallust
+    apple-cursor
+
+    inputs.helium.packages.${pkgs.system}.default
+
+    rcp
+    wallpaperScript
+  ];
+
+  home.sessionVariables = {
+    XCURSOR_THEME = "macOS";
+    XCURSOR_SIZE = "24";
+    QML_IMPORT_PATH = "${pkgs.qt6.qt5compat}/lib/qt-6/qml";
+  };
+
+  xdg.configFile = {
+    "niri/config.kdl".source = ./dotfiles/niri/config.kdl;
+    "fuzzel/fuzzel.ini".source = ./dotfiles/fuzzel/fuzzel.ini;
+    "fuzzel/catppuccin-mocha-blue.ini".source = ./dotfiles/fuzzel/catppuccin-mocha-blue.ini;
+    "wallust/wallust.toml".source = ./dotfiles/wallust/wallust.toml;
+    "wallust/templates/niri.kdl".source = ./dotfiles/wallust/templates/niri.kdl;
+    "wallust/templates/qs-theme.qml".source = ./dotfiles/wallust/templates/qs-theme.qml;
+
+    "quickshell/shell.qml".source = ./dotfiles/quickshell/shell.qml;
+    "quickshell/Theme.qml".source = ./dotfiles/quickshell/Theme.qml;
+    "quickshell/PopupContext.qml".source = ./dotfiles/quickshell/PopupContext.qml;
+    "quickshell/bar/Bar.qml".source = ./dotfiles/quickshell/bar/Bar.qml;
+    "quickshell/bar/BarBlock.qml".source = ./dotfiles/quickshell/bar/BarBlock.qml;
+    "quickshell/bar/BarText.qml".source = ./dotfiles/quickshell/bar/BarText.qml;
+    "quickshell/bar/Notification.qml".source = ./dotfiles/quickshell/bar/Notification.qml;
+    "quickshell/bar/NotificationPanel.qml".source = ./dotfiles/quickshell/bar/NotificationPanel.qml;
+    "quickshell/bar/Tooltip.qml".source = ./dotfiles/quickshell/bar/Tooltip.qml;
+    "quickshell/bar/blocks/ActiveWorkspace.qml".source = ./dotfiles/quickshell/bar/blocks/ActiveWorkspace.qml;
+    "quickshell/bar/blocks/Battery.qml".source = ./dotfiles/quickshell/bar/blocks/Battery.qml;
+    "quickshell/bar/blocks/Date.qml".source = ./dotfiles/quickshell/bar/blocks/Date.qml;
+    "quickshell/bar/blocks/Datetime.qml".source = ./dotfiles/quickshell/bar/blocks/Datetime.qml;
+    "quickshell/bar/blocks/Icon.qml".source = ./dotfiles/quickshell/bar/blocks/Icon.qml;
+    "quickshell/bar/blocks/Memory.qml".source = ./dotfiles/quickshell/bar/blocks/Memory.qml;
+    "quickshell/bar/blocks/Notifications.qml".source = ./dotfiles/quickshell/bar/blocks/Notifications.qml;
+    "quickshell/bar/blocks/Sound.qml".source = ./dotfiles/quickshell/bar/blocks/Sound.qml;
+    "quickshell/bar/blocks/SystemTray.qml".source = ./dotfiles/quickshell/bar/blocks/SystemTray.qml;
+    "quickshell/bar/blocks/Time.qml".source = ./dotfiles/quickshell/bar/blocks/Time.qml;
+    "quickshell/bar/blocks/Workspace.qml".source = ./dotfiles/quickshell/bar/blocks/Workspace.qml;
+    "quickshell/bar/blocks/Workspaces.qml".source = ./dotfiles/quickshell/bar/blocks/Workspaces.qml;
+    "quickshell/bar/utils/HyprlandUtils.qml".source = ./dotfiles/quickshell/bar/utils/HyprlandUtils.qml;
+  };
+
+  systemd.user.services.wallpaper-changer = {
+    Unit = {
+      Description = "Random wallpaper changer";
+    };
+    Service = {
+      Type = "simple";
+      ExecStart = "${wallpaperScript}/bin/random-wallpaper";
+    };
+  };
+
+  systemd.user.timers.wallpaper-changer = {
+    Unit = {
+      Description = "Change wallpaper every 15 minutes";
+    };
+    Timer = {
+      OnCalendar = "*:0/15";
+      Persistent = true;
+    };
+    Install = {
+      WantedBy = [ "timers.target" ];
+    };
+  };
+
+}

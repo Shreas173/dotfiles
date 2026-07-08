@@ -1,0 +1,7 @@
+[wallust]
+backend = "resized"
+alpha = 80
+
+[templates]
+niri = { template = 'niri.kdl', target = '~/.config/niri/colors.kdl' }
+qs-theme = { template = 'qs-theme.qml', target = '~/.config/quickshell/bar/theme/WallustTheme.qml' }

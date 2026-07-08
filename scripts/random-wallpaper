@@ -1,0 +1,59 @@
+#!/usr/bin/env nix-shell
+#!nix-shell -i bash -p curl jq swaybg wallust
+
+set -euo pipefail
+
+CACHE_DIR="$HOME/.cache/wallhaven"
+mkdir -p "$CACHE_DIR"
+
+API_BASE="https://wallhaven.cc/api/v1/search"
+PARAMS="sorting=toplist&topRange=1M&atleast=3840x2160&categories=110&purity=100&q=dark"
+
+META=$(curl -sf "$API_BASE?$PARAMS&page=1") || {
+    echo "Failed to fetch Wallhaven toplist"
+    exit 1
+}
+
+LAST_PAGE=$(echo "$META" | jq -r '.meta.last_page // 1')
+
+PAGE=$((RANDOM % LAST_PAGE + 1))
+
+DATA=$(curl -sf "$API_BASE?$PARAMS&page=$PAGE") || {
+    echo "Failed to fetch page $PAGE"
+    exit 1
+}
+
+mapfile -t IMAGES < <(echo "$DATA" | jq -r '.data[].path')
+
+if [ ${#IMAGES[@]} -eq 0 ]; then
+    echo "No images in response"
+    exit 1
+fi
+
+RANDOM_IMAGE="${IMAGES[$RANDOM % ${#IMAGES[@]}]}"
+
+FILENAME=$(basename "$RANDOM_IMAGE")
+CACHE_PATH="$CACHE_DIR/$FILENAME"
+
+if [ ! -f "$CACHE_PATH" ]; then
+    curl -sf -o "$CACHE_PATH" "$RANDOM_IMAGE" || {
+        echo "Failed to download $RANDOM_IMAGE"
+        exit 1
+    }
+fi
+
+wallust run "$CACHE_PATH" -q || true
+
+pkill swaybg 2>/dev/null || true
+swaybg -i "$CACHE_PATH" -m fill &
+disown
+
+if pgrep -x quickshell > /dev/null 2>&1; then
+    pkill quickshell 2>/dev/null || true
+    sleep 0.5
+fi
+
+QML_IMPORT_PATH=/nix/store/knxc2lffak0vqn9607ijcmhq804ipakk-qt5compat-6.11.1/lib/qt-6/qml
+nohup env "QML_IMPORT_PATH=$QML_IMPORT_PATH" quickshell > /dev/null 2>&1 &
+disown
+

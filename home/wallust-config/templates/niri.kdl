@@ -1,0 +1,12 @@
+layout {
+    background-color "{{background | hexa}}"
+
+    focus-ring {
+        active-color "{{color4}}"
+    }
+
+    border {
+        active-color "{{color4}}"
+        inactive-color "{{color8}}"
+    }
+}
