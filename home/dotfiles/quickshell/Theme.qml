@@ -4,7 +4,7 @@ import QtQuick
 import Quickshell
 
 Singleton {
-    property Item get: wallust
+    property Item get: catppuccin
 
     Item {
         id: wallust

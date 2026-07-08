@@ -21,6 +21,17 @@ let
     echo "Compilation successful! Run with: ./$executable"
   '';
 
+  wallpaper-script = pkgs.writeShellScriptBin "random-wallpaper" ''
+    wallust run ~/Downloads/wall.png -q
+    pkill swaybg 2>/dev/null || true
+    swaybg -i ~/Downloads/wall.png -m fill &
+    disown
+    pkill quickshell 2>/dev/null || true
+    sleep 0.5
+    QML_IMPORT_PATH=${pkgs.qt6.qt5compat}/lib/qt-6/qml nohup quickshell > /dev/null 2>&1 &
+    disown
+  '';
+
 in
 {
   home.username = "shreas";
@@ -51,6 +62,7 @@ in
     quickshell
     qt6.qt5compat
     fuzzel
+    swaybg
 
     wallust
     apple-cursor
@@ -58,12 +70,17 @@ in
     inputs.helium.packages.${pkgs.system}.default
 
     rcp
+    wallpaper-script
   ];
 
   home.sessionVariables = {
     XCURSOR_THEME = "macOS";
     XCURSOR_SIZE = "24";
     QML_IMPORT_PATH = "${pkgs.qt6.qt5compat}/lib/qt-6/qml";
+  };
+
+  programs.bash = {
+    enable = true;
   };
 
   xdg.configFile = {
