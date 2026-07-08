@@ -102,6 +102,7 @@ Scope {
           Blocks.Battery {}
           Blocks.Date {}
           Blocks.Time {}
+          Blocks.Power {}
         }
       }
     }

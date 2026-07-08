@@ -198,6 +198,7 @@ spawn-sh-at-startup "QML_IMPORT_PATH=/nix/store/knxc2lffak0vqn9607ijcmhq804ipakk
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:
 // spawn-sh-at-startup "qs -c ~/source/qs/MyAwesomeShell"
 spawn-sh-at-startup "random-wallpaper"
+spawn-sh-at-startup "polkit-gnome-authentication-agent-1"
 
 hotkey-overlay {
     // Uncomment this line to disable the "Important Hotkeys" pop-up at startup.

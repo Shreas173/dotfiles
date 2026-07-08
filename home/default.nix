@@ -66,6 +66,7 @@ in
 
     wallust
     apple-cursor
+    polkit_gnome
 
     inputs.helium.packages.${pkgs.system}.default
 
