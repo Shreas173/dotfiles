@@ -44,6 +44,7 @@ in
     bat
     ntfs3g
     alacritty
+    gh
     ripgrep
     lua51Packages.tree-sitter-cli
 
