@@ -1,6 +1,9 @@
 { config, pkgs, inputs, ... }:
 
 let
+  editorFont = "Fira Code";
+  editorFontSize = "12";
+
   rcp = pkgs.writeShellScriptBin "rcp" ''
     set -euo pipefail
     if [ $# -ne 1 ]; then
@@ -19,52 +22,6 @@ let
     echo "Compiling $file → $executable"
     g++ -std=c++17 -Wshadow -Wall -o "$executable" "$file" -g -fsanitize=address -fsanitize=undefined -D_GLIBCXX_DEBUG
     echo "Compilation successful! Run with: ./$executable"
-  '';
-
-  toggle-dropdown = pkgs.writeShellScriptBin "toggle-dropdown" ''
-    set -euo pipefail
-
-    LOCKFILE="/tmp/kitty-dropdown.lock"
-    exec 200>"$LOCKFILE"
-    flock -n 200 || exit 0
-
-    KITTY_CLASS="kitty-dropdown"
-    SOCKET="$XDG_RUNTIME_DIR/kitty-dropdown.sock"
-    SCRATCH_WS=99
-
-    focus_out=$(niri msg focused-output 2>/dev/null)
-    WIDTH=$(echo "$focus_out" | sed -n 's/.*Logical size: \([0-9]*\)x[0-9]*/\1/p')
-    HEIGHT=$(echo "$focus_out" | sed -n 's/.*Logical size: [0-9]*x\([0-9]*\)/\1/p')
-    WIDTH=''${WIDTH:-1920}
-    HEIGHT=''${HEIGHT:-1080}
-    DROP_HEIGHT=$((HEIGHT / 2))
-
-    if ! kitty @ --to "unix:$SOCKET" ls >/dev/null 2>&1; then
-      kitty --class "$KITTY_CLASS" --listen-on "unix:$SOCKET" \
-        --override remember_window_size=no \
-        --override initial_window_width="$WIDTH" \
-        --override initial_window_height="$DROP_HEIGHT" \
-        --override window_padding_width=12 &
-      for _ in $(seq 1 30); do
-        if niri msg windows 2>/dev/null | grep -q "$KITTY_CLASS"; then
-          niri msg action focus-window "app-id:$KITTY_CLASS" 2>/dev/null || true
-          niri msg action move-floating-window --x 0 --y 0 2>/dev/null || true
-          break
-        fi
-        sleep 0.1
-      done
-      exit 0
-    fi
-
-    if niri msg focused-window 2>/dev/null | grep -q "App ID:.*$KITTY_CLASS"; then
-      niri msg action move-window-to-workspace "$SCRATCH_WS"
-      niri msg action focus-workspace-previous
-    else
-      current_ws=$(niri msg focused-window 2>/dev/null | grep "Workspace ID" | awk '{print $3}')
-      niri msg action focus-window "app-id:$KITTY_CLASS"
-      niri msg action move-window-to-workspace "$current_ws"
-      niri msg action focus-workspace "$current_ws"
-    fi
   '';
 
   wallpaper-script = pkgs.writeShellScriptBin "random-wallpaper" ''
@@ -91,7 +48,6 @@ in
     obs-studio
     papirus-icon-theme
     kitty
-    guake
     ghostty
     discord
     texliveFull
@@ -102,6 +58,7 @@ in
     ntfs3g
     alacritty
     gh
+    jq
     yazi
     ripgrep
     lua51Packages.tree-sitter-cli
@@ -118,7 +75,6 @@ in
     inputs.helium.packages.${pkgs.system}.default
 
     rcp
-    toggle-dropdown
     wallpaper-script
   ];
 
@@ -136,6 +92,7 @@ in
     "niri/config.kdl".source = ./dotfiles/niri/config.kdl;
     "fuzzel/fuzzel.ini".source = ./dotfiles/fuzzel/fuzzel.ini;
     "fuzzel/catppuccin-mocha-blue.ini".source = ./dotfiles/fuzzel/catppuccin-mocha-blue.ini;
+    "geany/geany.conf" = { source = ./dotfiles/geany/geany.conf; force = true; };
     "wallust/wallust.toml".source = ./wallust-config/wallust.toml;
     "wallust/templates/niri.kdl".source = ./wallust-config/templates/niri.kdl;
     "wallust/templates/qs-theme.qml".source = ./wallust-config/templates/qs-theme.qml;
@@ -162,6 +119,23 @@ in
     "quickshell/bar/blocks/Workspace.qml".source = ./dotfiles/quickshell/bar/blocks/Workspace.qml;
     "quickshell/bar/blocks/Workspaces.qml".source = ./dotfiles/quickshell/bar/blocks/Workspaces.qml;
     "quickshell/bar/utils/HyprlandUtils.qml".source = ./dotfiles/quickshell/bar/utils/HyprlandUtils.qml;
+
+    "kitty/kitty.conf" = { source = ./dotfiles/kitty/kitty.conf; force = true; };
+    "kitty/quick-access-terminal.conf" = { source = ./dotfiles/kitty/quick-access-terminal.conf; force = true; };
+
+    "nvim/lua/options.lua" = {
+      force = true;
+      text = ''
+        require "nvchad.options"
+
+        local o = vim.o
+        o.tabstop = 4
+        o.shiftwidth = 4
+        o.expandtab = true
+
+        vim.opt.guifont = "${editorFont}:h${editorFontSize}"
+      '';
+    };
   };
 
 }

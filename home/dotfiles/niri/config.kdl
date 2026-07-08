@@ -249,11 +249,7 @@ window-rule {
     open-floating true
 }
 
-// Kitty dropdown terminal
-window-rule {
-    match app-id=r#"^kitty-dropdown$"#
-    open-floating true
-}
+workspace "scratchpad"
 
 // Example: block out two password managers from screen capture.
 // (This example rule is commented out with a "/-" in front.)
@@ -321,7 +317,7 @@ binds {
 
     // Suggested binds for running programs: terminal, app launcher, screen locker.
     Mod+T hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
-    F12 hotkey-overlay-title="Toggle Dropdown Terminal" { spawn-sh "toggle-dropdown"; }
+    F12 hotkey-overlay-title="Toggle Dropdown Terminal" { spawn "kitten" "quick-access-terminal"; }
     Mod+D hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
     Mod+Space hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
     Super+Alt+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "swaylock"; }
