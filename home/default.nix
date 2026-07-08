@@ -21,7 +21,6 @@ let
     echo "Compilation successful! Run with: ./$executable"
   '';
 
-  wallpaperScript = pkgs.writeShellScriptBin "random-wallpaper" (builtins.readFile ./../scripts/random-wallpaper);
 in
 {
   home.username = "shreas";
@@ -97,29 +96,6 @@ in
     "quickshell/bar/blocks/Workspace.qml".source = ./dotfiles/quickshell/bar/blocks/Workspace.qml;
     "quickshell/bar/blocks/Workspaces.qml".source = ./dotfiles/quickshell/bar/blocks/Workspaces.qml;
     "quickshell/bar/utils/HyprlandUtils.qml".source = ./dotfiles/quickshell/bar/utils/HyprlandUtils.qml;
-  };
-
-  systemd.user.services.wallpaper-changer = {
-    Unit = {
-      Description = "Random wallpaper changer";
-    };
-    Service = {
-      Type = "simple";
-      ExecStart = "${wallpaperScript}/bin/random-wallpaper";
-    };
-  };
-
-  systemd.user.timers.wallpaper-changer = {
-    Unit = {
-      Description = "Change wallpaper every 15 minutes";
-    };
-    Timer = {
-      OnCalendar = "*:0/15";
-      Persistent = true;
-    };
-    Install = {
-      WantedBy = [ "timers.target" ];
-    };
   };
 
 }
