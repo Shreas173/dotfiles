@@ -1,0 +1,11 @@
+#!/usr/bin/env nix-shell
+#!nix-shell -i bash -p wallust
+
+wallust run ~/Downloads/wall.png -q
+pkill swaybg 2>/dev/null || true
+swaybg -i ~/Downloads/wall.png -m fill &
+disown
+pkill quickshell 2>/dev/null || true
+sleep 0.5
+nohup quickshell > /dev/null 2>&1 &
+disown
