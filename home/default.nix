@@ -24,6 +24,10 @@ let
   toggle-dropdown = pkgs.writeShellScriptBin "toggle-dropdown" ''
     set -euo pipefail
 
+    LOCKFILE="/tmp/kitty-dropdown.lock"
+    exec 200>"$LOCKFILE"
+    flock -n 200 || exit 0
+
     KITTY_CLASS="kitty-dropdown"
     SOCKET="$XDG_RUNTIME_DIR/kitty-dropdown.sock"
     SCRATCH_WS=99
