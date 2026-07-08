@@ -57,7 +57,6 @@ in
     inputs.helium.packages.${pkgs.system}.default
 
     rcp
-    wallpaperScript
   ];
 
   home.sessionVariables = {
