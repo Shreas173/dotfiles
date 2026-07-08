@@ -21,6 +21,44 @@ let
     echo "Compilation successful! Run with: ./$executable"
   '';
 
+  toggle-dropdown = pkgs.writeShellScriptBin "toggle-dropdown" ''
+    set -euo pipefail
+
+    KITTY_CLASS="kitty-dropdown"
+    SOCKET="$XDG_RUNTIME_DIR/kitty-dropdown.sock"
+    SCRATCH_WS=99
+
+    focus_out=$(niri msg focused-output 2>/dev/null)
+    WIDTH=$(echo "$focus_out" | sed -n 's/.*Logical size: \([0-9]*\)x[0-9]*/\1/p')
+    HEIGHT=$(echo "$focus_out" | sed -n 's/.*Logical size: [0-9]*x\([0-9]*\)/\1/p')
+    WIDTH=''${WIDTH:-1920}
+    HEIGHT=''${HEIGHT:-1080}
+    DROP_HEIGHT=$((HEIGHT / 2))
+
+    if ! kitty @ --to "unix:$SOCKET" ls >/dev/null 2>&1; then
+      kitty --class "$KITTY_CLASS" --listen-on "unix:$SOCKET" \
+        --override remember_window_size=no \
+        --override initial_window_width="$WIDTH" \
+        --override initial_window_height="$DROP_HEIGHT" \
+        --override window_padding_width=12 &
+      for _ in $(seq 1 30); do
+        if niri msg windows 2>/dev/null | grep -q "$KITTY_CLASS"; then
+          niri msg action focus-window "app-id:$KITTY_CLASS" 2>/dev/null || true
+          niri msg action move-floating-window --x 0 --y 0 2>/dev/null || true
+          break
+        fi
+        sleep 0.1
+      done
+      exit 0
+    fi
+
+    if niri msg focused-window 2>/dev/null | grep -q "App ID:.*$KITTY_CLASS"; then
+      niri msg action move-column-to-workspace "$SCRATCH_WS"
+    else
+      niri msg action focus-window "app-id:$KITTY_CLASS"
+    fi
+  '';
+
   wallpaper-script = pkgs.writeShellScriptBin "random-wallpaper" ''
     wallust run ~/Downloads/wall.png -q
     pkill swaybg 2>/dev/null || true
@@ -72,6 +110,7 @@ in
     inputs.helium.packages.${pkgs.system}.default
 
     rcp
+    toggle-dropdown
     wallpaper-script
   ];
 
