@@ -57,9 +57,13 @@ let
     fi
 
     if niri msg focused-window 2>/dev/null | grep -q "App ID:.*$KITTY_CLASS"; then
-      niri msg action move-column-to-workspace "$SCRATCH_WS"
+      niri msg action move-window-to-workspace "$SCRATCH_WS"
+      niri msg action focus-workspace-previous
     else
+      current_ws=$(niri msg focused-window 2>/dev/null | grep "Workspace ID" | awk '{print $3}')
       niri msg action focus-window "app-id:$KITTY_CLASS"
+      niri msg action move-window-to-workspace "$current_ws"
+      niri msg action focus-workspace "$current_ws"
     fi
   '';
 
